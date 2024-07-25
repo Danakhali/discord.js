@@ -1,0 +1,39 @@
+const { Client, Intents } = require('discord.js');
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+
+let gameNumber = Math.floor(Math.random() * 100) + 1; // رقم عشوائي من 1 إلى 100
+let gameActive = false;
+
+client.once('ready', () => {
+    console.log('Ready!');
+});
+
+client.on('messageCreate', message => {
+    if (message.content === '!startgame') {
+        if (gameActive) {
+            message.channel.send('Game is already in progress!');
+            return;
+        }
+        gameNumber = Math.floor(Math.random() * 100) + 1;
+        gameActive = true;
+        message.channel.send('Game started! Guess a number between 1 and 100.');
+    } else if (message.content.startsWith('!guess')) {
+        if (!gameActive) {
+            message.channel.send('No game is currently active. Start a game with !startgame');
+            return;
+        }
+        const guess = parseInt(message.content.split(' ')[1], 10);
+        if (isNaN(guess) || guess < 1 || guess > 100) {
+            message.channel.send('Please guess a number between 1 and 100.');
+            return;
+        }
+        if (guess === gameNumber) {
+            message.channel.send('Congratulations! You guessed the right number!');
+            gameActive = false;
+        } else {
+            message.channel.send('Wrong guess. Try again!');
+        }
+    }
+});
+
+client.login('YOUR_BOT_TOKEN');
